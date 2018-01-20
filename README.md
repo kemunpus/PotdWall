@@ -2,7 +2,7 @@
 
 ![top-page](https://raw.githubusercontent.com/kemunpus/PotdWall/master/store/promotion-440x280.png)
 
-## description
+## Overview
 
 Simple light-weight Chrome app that shows a beautiful 'Photo of the day' as the desktop wallpaper.
 
