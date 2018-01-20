@@ -1,0 +1,20 @@
+{
+  "name": {
+    "message": "'Photo of the day' Wall"
+  },
+  "description": {
+    "message": "'今日の一枚'を壁紙に設定するシンプルな Chrome アプリです."
+  },
+  "potd": {
+    "message": "写真を取得するサイト:"
+  },
+  "save": {
+    "message": "　保存　"
+  },
+  "updated": {
+    "message": "サイトから壁紙を更新しました"
+  },
+  "failed": {
+    "message": "サイトから写真が取得できないようです…"
+  }
+}

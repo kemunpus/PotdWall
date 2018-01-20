@@ -1,0 +1,31 @@
+{
+  "manifest_version": 2,
+  "version": "1.0.1",
+  "author": "kemunpus",
+  "name": "'Photo of the day' Wall",
+  "short_name": "PotdWall",
+  "description": "__MSG_description__",
+  "default_locale": "en",
+  "offline_enabled": true,
+  "icons": {
+    "128": "image/icon-128.png"
+  },
+  "app": {
+    "background": {
+      "scripts": [ "js/background.js" ],
+      "persistent": false
+    }
+  },
+  "permissions": [
+    "alarms",
+    "storage",
+    "wallpaper",
+    "notifications",
+    "https://*.wikimedia.org/",
+    "http://*.wikimedia.org/",
+    "https://*.nasa.gov/",
+    "http://*.nasa.gov/",
+    "https://*.nationalgeographic.com/",
+    "http://*.nationalgeographic.com/"
+  ]
+}

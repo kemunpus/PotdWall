@@ -1,0 +1,20 @@
+{
+  "name": {
+    "message": "'Photo of the day' Wall"
+  },
+  "description": {
+    "message": "Simple Chrome app that shows a 'Photo of the day' as the wallpaper."
+  },
+  "potd": {
+    "message": "Source Site:"
+  },
+  "save": {
+    "message": " Save "
+  },
+  "updated": {
+    "message": "Wallpaper has been updated"
+  },
+  "failed": {
+    "message": "The site seem to be down..."
+  }
+}
