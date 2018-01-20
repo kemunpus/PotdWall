@@ -1,5 +1,7 @@
 ﻿# 'Photo of the day' Wall (PotdWall)
 
+![top-page](https://raw.githubusercontent.com/kemunpus/PotdWall/master/store/promotion-440x280.png)
+
 ## description
 
 Simple light-weight Chrome app that shows a beautiful 'Photo of the day' as the desktop wallpaper.
@@ -18,3 +20,4 @@ No ads, harmful behavior, and unnecessary network accesses. Very small and clean
 
 ## Chrome Web Store
 
+<https://chrome.google.com/webstore/detail/photo-of-the-day-wall/kobkekglgjanedfecimfkgnhklgglkfb>

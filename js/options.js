@@ -13,13 +13,14 @@
     }
 
     chrome.storage.local.get('currentPotd', (settings) => {
+        const currentPotd = settings.currentPotd ? settings.currentPotd : 'wikimedia';
 
         for (let potd in sites) {
 
             if (sites[potd].title) {
                 const option = document.createElement('option');
 
-                if (potd === settings.currentPotd) {
+                if (potd === currentPotd) {
                     option.setAttribute('selected', 'selected');
                     site.setAttribute("href", sites[potd].url);
                     site.innerHTML = sites[potd].url;
