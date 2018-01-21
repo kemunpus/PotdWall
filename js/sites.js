@@ -13,7 +13,8 @@ const sites = {
         apiSuffix: '',
         firstKey: 'url',
         secondKey: '',
-        validExt: '.jpg'
+        validExt: '.jpg',
+        baseUrl: ''
     },
 
     nasa: {
@@ -23,7 +24,8 @@ const sites = {
         apiSuffix: '',
         firstKey: 'url',
         secondKey: '',
-        validExt: '.jpg'
+        validExt: '.jpg',
+        baseUrl: ''
     },
 
     nationalgeographic: {
@@ -33,10 +35,22 @@ const sites = {
         apiSuffix: '.json',
         firstKey: 'url',
         secondKey: 'originalUrl',
-        validExt: ''
+        validExt: '',
+        baseUrl: ''
     },
 
-    setWallpaper: (potd) => {
+    bing: {
+        title: "Bing 'Photo of the day'",
+        url: 'https://www.bing.com/',
+        apiUrl: 'https://www.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1&DUMMY=',
+        apiSuffix: '',
+        firstKey: 'url',
+        secondKey: '',
+        validExt: '.jpg',
+        baseUrl: 'http://www.bing.com/'
+    },
+
+    setWallpaper: (potd, callback) => {
 
         if (!potd) {
             potd = 'wikimedia';
@@ -50,8 +64,7 @@ const sites = {
             const lastImageUrl = settings.lastImageUrl;
 
             const now = new Date();
-            const utc = new Date(now.valueOf() + now.getTimezoneOffset() * 60000);
-            const today = utc.getFullYear() + '-' + ('00' + (utc.getMonth() + 1)).slice(-2) + '-' + ('00' + utc.getDate()).slice(-2);
+            const today = now.getUTCFullYear() + '-' + ('00' + (now.getUTCMonth() + 1)).slice(-2) + '-' + ('00' + now.getUTCDate()).slice(-2);
 
             const apiRequest = potdSite.apiUrl + today + potdSite.apiSuffix;
 
@@ -66,7 +79,7 @@ const sites = {
             const xmlhttpRequest = new XMLHttpRequest();
 
             let done = false;
-            let imageUrl = '';
+            let imageUrl = potdSite.baseUrl;
 
             console.log(`calling api : ${apiRequest}`);
 
@@ -86,10 +99,10 @@ const sites = {
                                 if (key === potdSite.firstKey) {
 
                                     if (!potdSite.validExt || value.endsWith(potdSite.validExt)) {
-                                        imageUrl = value;
+                                        imageUrl += value;
 
                                         if (!potdSite.secondKey) {
-                                            sites.setImage(potd, apiRequest, imageUrl);
+                                            sites.setImage(potd, apiRequest, imageUrl, callback);
 
                                             done = true;
                                         }
@@ -100,7 +113,7 @@ const sites = {
                                     if (!potdSite.validExt || value.endsWith(potdSite.validExt)) {
                                         imageUrl += value;
 
-                                        sites.setImage(potd, apiRequest, imageUrl);
+                                        sites.setImage(potd, apiRequest, imageUrl, callback);
 
                                         done = true;
                                     }
@@ -127,28 +140,35 @@ const sites = {
         });
     },
 
-    setImage: (potd, apiRequest, imageUrl) => {
+    setImage: (potd, apiRequest, imageUrl, callback) => {
 
         if (!apiRequest || !imageUrl) {
             console.log(`invalid url : apiRequest=${imageUrl} imageUrl=${imageUrl}`);
 
-            return;
+        } else {
+            console.log(`loading image from : ${imageUrl}`);
+
+            try {
+                chrome.wallpaper.setWallpaper({
+                    'url': imageUrl,
+                    'filename': potd,
+                    'layout': 'CENTER_CROPPED'
+                }, () => {
+                    chrome.notifications.create({
+                        type: 'basic',
+                        title: chrome.i18n.getMessage('updated'),
+                        message: sites[potd].title,
+                        iconUrl: '../image/icon-128.png'
+                    }, () => { });
+                });
+
+            } catch (ex) {
+                console.log(ex);
+            }
         }
 
-        console.log(`loading image from : ${imageUrl}`);
-
-        chrome.wallpaper.setWallpaper({
-            'url': imageUrl,
-            'filename': potd,
-            'layout': 'CENTER_CROPPED'
-        }, () => {
-
-            chrome.notifications.create({
-                type: 'basic',
-                title: chrome.i18n.getMessage('updated'),
-                message: sites[potd].title,
-                iconUrl: '../image/icon-128.png'
-            }, () => { });
-        });
+        if (callback) {
+            callback();
+        }
     }
 };

@@ -6,7 +6,7 @@
 
 (() => {
     chrome.storage.local.get('currentPotd', (settings) => {
-        sites.setWallpaper(settings.currentPotd);
+        sites.setWallpaper(settings.currentPotd, null);
     });
 
     window.close();

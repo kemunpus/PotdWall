@@ -5,7 +5,7 @@
 'use strict';
 
 (() => {
-    chrome.alarms.create('checkUpdate', { periodInMinutes: 60 });
+    chrome.alarms.create('checkUpdate', { periodInMinutes: 1 });
 
     chrome.alarms.onAlarm.addListener((alarm) => {
 
