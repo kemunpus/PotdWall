@@ -121,12 +121,11 @@ const sites = {
                                 title: chrome.i18n.getMessage('failed'),
                                 message: sites[potd].title,
                                 iconUrl: '../image/icon-128.png'
-                            }, () => {
+                            }, () => { });
 
-                                if (callback) {
-                                    callback();
-                                }
-                            });
+                            if (callback) {
+                                callback();
+                            }
                         }
 
                     } else {
@@ -137,12 +136,11 @@ const sites = {
                             title: chrome.i18n.getMessage('failed'),
                             message: sites[potd].title,
                             iconUrl: '../image/icon-128.png'
-                        }, () => {
+                        }, () => { });
 
-                            if (callback) {
-                                callback();
-                            }
-                        });
+                        if (callback) {
+                            callback();
+                        }
                     }
                 }
             };
@@ -152,7 +150,6 @@ const sites = {
     },
 
     setImage: (potd, apiRequest, imageUrl, callback) => {
-        let done = false;
 
         if (!apiRequest || !imageUrl) {
             console.log(`invalid url : apiRequest=${imageUrl} imageUrl=${imageUrl}`);
@@ -166,27 +163,23 @@ const sites = {
                     'filename': potd,
                     'layout': 'CENTER_CROPPED'
                 }, () => {
-                    chrome.notifications.create({
-                        type: 'basic',
-                        title: chrome.i18n.getMessage('updated'),
-                        message: sites[potd].title,
-                        iconUrl: '../image/icon-128.png'
-                    }, () => {
 
-                        if (callback) {
-                            callback();
-                        }
-                    });
+                    if (!callback) {
+                        chrome.notifications.create({
+                            type: 'basic',
+                            title: chrome.i18n.getMessage('updated'),
+                            message: sites[potd].title,
+                            iconUrl: '../image/icon-128.png'
+                        }, () => { });
+                    }
                 });
-
-                done = true;
 
             } catch (ex) {
                 console.log(ex);
             }
         }
 
-        if (callback && !done) {
+        if (callback) {
             callback();
         }
     }
