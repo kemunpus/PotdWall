@@ -13,7 +13,6 @@ const sites = {
         apiSuffix: '',
         firstKey: 'url',
         secondKey: '',
-        validExt: '.jpg',
         baseUrl: ''
     },
 
@@ -24,7 +23,6 @@ const sites = {
         apiSuffix: '',
         firstKey: 'url',
         secondKey: '',
-        validExt: '.jpg',
         baseUrl: ''
     },
 
@@ -35,7 +33,6 @@ const sites = {
         apiSuffix: '.json',
         firstKey: 'url',
         secondKey: 'originalUrl',
-        validExt: '',
         baseUrl: ''
     },
 
@@ -46,7 +43,6 @@ const sites = {
         apiSuffix: '',
         firstKey: 'url',
         secondKey: '',
-        validExt: '.jpg',
         baseUrl: 'http://www.bing.com/'
     },
 
@@ -71,7 +67,7 @@ const sites = {
             if (apiRequest === lastApiRequest) {
                 console.log(`api request might be same as the last one : ${lastApiRequest}`);
 
-                sites.setImage(lastPotd, lastApiRequest, lastImageUrl);
+                sites.setImage(lastPotd, lastApiRequest, lastImageUrl, callback);
 
                 return;
             }
@@ -97,31 +93,41 @@ const sites = {
                             if (!done && value) {
 
                                 if (key === potdSite.firstKey) {
+                                    imageUrl += value;
 
-                                    if (!potdSite.validExt || value.endsWith(potdSite.validExt)) {
-                                        imageUrl += value;
-
-                                        if (!potdSite.secondKey) {
-                                            sites.setImage(potd, apiRequest, imageUrl, callback);
-
-                                            done = true;
-                                        }
-                                    }
-
-                                } else if (key === potdSite.secondKey) {
-
-                                    if (!potdSite.validExt || value.endsWith(potdSite.validExt)) {
-                                        imageUrl += value;
-
+                                    if (!potdSite.secondKey) {
                                         sites.setImage(potd, apiRequest, imageUrl, callback);
 
                                         done = true;
                                     }
+
+                                } else if (key === potdSite.secondKey) {
+                                    imageUrl += value;
+
+                                    sites.setImage(potd, apiRequest, imageUrl, callback);
+
+                                    done = true;
                                 }
                             }
 
                             return value;
                         });
+
+                        if (!done) {
+                            console.log(`no image url: ${apiRequest}`);
+
+                            chrome.notifications.create({
+                                type: 'basic',
+                                title: chrome.i18n.getMessage('failed'),
+                                message: sites[potd].title,
+                                iconUrl: '../image/icon-128.png'
+                            }, () => {
+
+                                if (callback) {
+                                    callback();
+                                }
+                            });
+                        }
 
                     } else {
                         console.log(`api call failed : ${apiRequest}`);
@@ -131,7 +137,12 @@ const sites = {
                             title: chrome.i18n.getMessage('failed'),
                             message: sites[potd].title,
                             iconUrl: '../image/icon-128.png'
-                        }, () => { });
+                        }, () => {
+
+                            if (callback) {
+                                callback();
+                            }
+                        });
                     }
                 }
             };
@@ -141,6 +152,7 @@ const sites = {
     },
 
     setImage: (potd, apiRequest, imageUrl, callback) => {
+        let done = false;
 
         if (!apiRequest || !imageUrl) {
             console.log(`invalid url : apiRequest=${imageUrl} imageUrl=${imageUrl}`);
@@ -159,15 +171,22 @@ const sites = {
                         title: chrome.i18n.getMessage('updated'),
                         message: sites[potd].title,
                         iconUrl: '../image/icon-128.png'
-                    }, () => { });
+                    }, () => {
+
+                        if (callback) {
+                            callback();
+                        }
+                    });
                 });
+
+                done = true;
 
             } catch (ex) {
                 console.log(ex);
             }
         }
 
-        if (callback) {
+        if (callback && !done) {
             callback();
         }
     }

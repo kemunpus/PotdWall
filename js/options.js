@@ -22,8 +22,10 @@
 
                 if (potd === currentPotd) {
                     option.setAttribute('selected', 'selected');
-                    site.setAttribute("href", sites[potd].url);
-                    site.innerHTML = sites[potd].url;
+
+                    const url = sites[potd].url;
+                    site.setAttribute("href", url);
+                    site.innerHTML = url;
                 }
 
                 option.setAttribute('value', potd);
