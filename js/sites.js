@@ -154,33 +154,41 @@ const sites = {
         if (!apiRequest || !imageUrl) {
             console.log(`invalid url : apiRequest=${imageUrl} imageUrl=${imageUrl}`);
 
-        } else {
-            console.log(`loading image from : ${imageUrl}`);
-
-            try {
-                chrome.wallpaper.setWallpaper({
-                    'url': imageUrl,
-                    'filename': potd,
-                    'layout': 'CENTER_CROPPED'
-                }, () => {
-
-                    if (!callback) {
-                        chrome.notifications.create({
-                            type: 'basic',
-                            title: chrome.i18n.getMessage('updated'),
-                            message: sites[potd].title,
-                            iconUrl: '../image/icon-128.png'
-                        }, () => { });
-                    }
-                });
-
-            } catch (ex) {
-                console.log(ex);
+            if (callback) {
+                callback();
             }
+
+            return;
         }
 
-        if (callback) {
-            callback();
+        console.log(`loading image from : ${imageUrl}`);
+
+        try {
+            chrome.wallpaper.setWallpaper({
+                'url': imageUrl,
+                'filename': potd,
+                'layout': 'CENTER_CROPPED'
+            }, () => {
+
+                if (callback) {
+                    callback();
+
+                } else {
+                    chrome.notifications.create({
+                        type: 'basic',
+                        title: chrome.i18n.getMessage('updated'),
+                        message: sites[potd].title,
+                        iconUrl: '../image/icon-128.png'
+                    }, () => { });
+                }
+            });
+
+        } catch (ex) {
+            console.log(ex);
+
+            if (callback) {
+                callback();
+            }
         }
     }
 };
