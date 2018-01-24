@@ -53,83 +53,56 @@ const sites = {
         }
 
         const potdSite = sites[potd];
+        const now = new Date();
 
-        chrome.storage.local.get(['lastPotd', 'lastApiRequest', 'lastImageUrl'], (settings) => {
-            const lastPotd = settings.lastPotd;
-            const lastApiRequest = settings.lastApiRequest;
-            const lastImageUrl = settings.lastImageUrl;
+        console.log(`Loading image from : ${potd} at : ${now}`);
 
-            const now = new Date();
-            const today = now.getUTCFullYear() + '-' + ('00' + (now.getUTCMonth() + 1)).slice(-2) + '-' + ('00' + now.getUTCDate()).slice(-2);
+        const today = now.getUTCFullYear() + '-' + ('00' + (now.getUTCMonth() + 1)).slice(-2) + '-' + ('00' + now.getUTCDate()).slice(-2);
+        const apiRequest = potdSite.apiUrl + today + potdSite.apiSuffix;
 
-            const apiRequest = potdSite.apiUrl + today + potdSite.apiSuffix;
+        let done = false;
+        let imageUrl = potdSite.baseUrl;
 
-            if (apiRequest === lastApiRequest) {
-                console.log(`api request might be same as the last one : ${lastApiRequest}`);
+        console.log(`calling api : ${apiRequest}`);
 
-                sites.setImage(lastPotd, lastApiRequest, lastImageUrl, callback);
+        const xmlhttpRequest = new XMLHttpRequest();
 
-                return;
-            }
+        xmlhttpRequest.open('GET', apiRequest, true);
 
-            const xmlhttpRequest = new XMLHttpRequest();
+        xmlhttpRequest.onreadystatechange = () => {
 
-            let done = false;
-            let imageUrl = potdSite.baseUrl;
+            if (xmlhttpRequest.readyState === 4) {
 
-            console.log(`calling api : ${apiRequest}`);
+                if (xmlhttpRequest.status === 200) {
+                    console.log(`parsing api response as json : ${xmlhttpRequest.response}`);
 
-            xmlhttpRequest.open('GET', apiRequest, true);
+                    JSON.parse(xmlhttpRequest.response, (key, value) => {
 
-            xmlhttpRequest.onreadystatechange = () => {
+                        if (!done && value) {
 
-                if (xmlhttpRequest.readyState === 4) {
+                            if (key === potdSite.firstKey) {
+                                imageUrl += value;
 
-                    if (xmlhttpRequest.status === 200) {
-                        console.log(`parsing api response as json : ${xmlhttpRequest.response}`);
-
-                        JSON.parse(xmlhttpRequest.response, (key, value) => {
-
-                            if (!done && value) {
-
-                                if (key === potdSite.firstKey) {
-                                    imageUrl += value;
-
-                                    if (!potdSite.secondKey) {
-                                        sites.setImage(potd, apiRequest, imageUrl, callback);
-
-                                        done = true;
-                                    }
-
-                                } else if (key === potdSite.secondKey) {
-                                    imageUrl += value;
-
+                                if (!potdSite.secondKey) {
                                     sites.setImage(potd, apiRequest, imageUrl, callback);
 
                                     done = true;
                                 }
-                            }
 
-                            return value;
-                        });
+                            } else if (key === potdSite.secondKey) {
+                                imageUrl += value;
 
-                        if (!done) {
-                            console.log(`no image url: ${apiRequest}`);
+                                sites.setImage(potd, apiRequest, imageUrl, callback);
 
-                            chrome.notifications.create({
-                                type: 'basic',
-                                title: chrome.i18n.getMessage('failed'),
-                                message: sites[potd].title,
-                                iconUrl: '../image/icon-128.png'
-                            }, () => { });
-
-                            if (callback) {
-                                callback();
+                                done = true;
                             }
                         }
 
-                    } else {
-                        console.log(`api call failed : ${apiRequest}`);
+                        return value;
+                    });
+
+                    if (!done) {
+                        console.log(`no image url: ${apiRequest}`);
 
                         chrome.notifications.create({
                             type: 'basic',
@@ -142,25 +115,28 @@ const sites = {
                             callback();
                         }
                     }
-                }
-            };
 
-            xmlhttpRequest.send();
-        });
+                } else {
+                    console.log(`api call failed : ${apiRequest}`);
+
+                    chrome.notifications.create({
+                        type: 'basic',
+                        title: chrome.i18n.getMessage('failed'),
+                        message: sites[potd].title,
+                        iconUrl: '../image/icon-128.png'
+                    }, () => { });
+
+                    if (callback) {
+                        callback();
+                    }
+                }
+            }
+        };
+
+        xmlhttpRequest.send();
     },
 
     setImage: (potd, apiRequest, imageUrl, callback) => {
-
-        if (!apiRequest || !imageUrl) {
-            console.log(`invalid url : apiRequest=${imageUrl} imageUrl=${imageUrl}`);
-
-            if (callback) {
-                callback();
-            }
-
-            return;
-        }
-
         console.log(`loading image from : ${imageUrl}`);
 
         try {
