@@ -139,6 +139,9 @@ const sites = {
     setImage: (potd, apiRequest, imageUrl, callback) => {
         console.log(`loading image from : ${imageUrl}`);
 
+        const now = new Date();
+        chrome.storage.local.set({ lastSetImage: now });
+
         try {
             chrome.wallpaper.setWallpaper({
                 'url': imageUrl,

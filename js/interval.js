@@ -6,7 +6,8 @@
 
 (() => {
     chrome.storage.local.get('currentPotd', (settings) => {
-        console.log('interval page - trying to update the wallpaper...');
+        const now = new Date();
+        chrome.storage.local.set({ lastInterval: now });
 
         sites.setWallpaper(settings.currentPotd, null);
     });

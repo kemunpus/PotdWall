@@ -16,15 +16,14 @@
     });
 
     chrome.alarms.onAlarm.addListener((alarm) => {
-        console.log('PotdWall alarm fired : ${alaram}');
+        const now = new Date();
+
+        chrome.storage.local.set({ lastAlaram: now });
 
         if (window.navigator.onLine) {
-            console.log('online now - go with interval.html...');
+            chrome.storage.local.set({ lastOnline: now });
 
             chrome.app.window.create('html/interval.html', { hidden: true });
-
-        } else {
-            console.log('offline now - will be on the next alaram...');
         }
     });
 
