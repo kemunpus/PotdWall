@@ -5,12 +5,15 @@
 'use strict';
 
 (() => {
-    chrome.storage.local.get('currentPotd', (settings) => {
-        const now = new Date();
-        chrome.storage.local.set({ lastInterval: now });
+    chrome.storage.local.get(['currentPotd', 'lastImageUrl'], (settings) => {
 
-        sites.setWallpaper(settings.currentPotd, null);
+        sites.setWallpaper({
+            potd: settings.currentPotd,
+            lastImageUrl: settings.lastImageUrl,
+            notify: true,
+            callback: () => {
+                window.close
+            }
+        });
     });
-
-    window.close();
 })();

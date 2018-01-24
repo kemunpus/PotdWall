@@ -45,13 +45,20 @@
             icon.src = '../image/loader-100x100.gif';
             save.disabled = true;
 
-            chrome.storage.local.set({ currentPotd: potdList.value });
+            chrome.storage.local.set({
+                currentPotd: potdList.value,
+                lastImageUrl: ''
+            });
 
-            sites.setWallpaper(potdList.value, () => {
-                icon.src = '../image/icon-128.png';
-                save.disabled = false;
+            sites.setWallpaper({
+                potd: potdList.value,
+                lastImageUrl: '',
+                notify: false,
+                callback: () => {
+                    icon.src = '../image/icon-128.png';
+                    save.disabled = false;
+                }
             });
         };
-
     });
 })();

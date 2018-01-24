@@ -16,13 +16,8 @@
     });
 
     chrome.alarms.onAlarm.addListener((alarm) => {
-        const now = new Date();
-
-        chrome.storage.local.set({ lastAlaram: now });
 
         if (window.navigator.onLine) {
-            chrome.storage.local.set({ lastOnline: now });
-
             chrome.app.window.create('html/interval.html', { hidden: true });
         }
     });

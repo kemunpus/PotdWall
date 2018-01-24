@@ -46,12 +46,8 @@ const sites = {
         baseUrl: 'http://www.bing.com/'
     },
 
-    setWallpaper: (potd, callback) => {
-
-        if (!potd) {
-            potd = 'wikimedia';
-        }
-
+    setWallpaper: (param) => {
+        const potd = param.potd ? param.potd : 'wikimedia';
         const potdSite = sites[potd];
         const now = new Date();
 
@@ -84,7 +80,14 @@ const sites = {
                                 imageUrl += value;
 
                                 if (!potdSite.secondKey) {
-                                    sites.setImage(potd, apiRequest, imageUrl, callback);
+                                    sites.setImage({
+                                        potd: potd,
+                                        apiRequest: apiRequest,
+                                        imageUrl: imageUrl,
+                                        lastImageUrl: param.lastImageUrl,
+                                        notify: param.notify,
+                                        callback: param.callback
+                                    });
 
                                     done = true;
                                 }
@@ -92,7 +95,14 @@ const sites = {
                             } else if (key === potdSite.secondKey) {
                                 imageUrl += value;
 
-                                sites.setImage(potd, apiRequest, imageUrl, callback);
+                                sites.setImage({
+                                    potd: potd,
+                                    apiRequest: apiRequest,
+                                    imageUrl: imageUrl,
+                                    lastImageUrl: param.lastImageUrl,
+                                    notify: param.notify,
+                                    callback: param.callback
+                                });
 
                                 done = true;
                             }
@@ -104,31 +114,31 @@ const sites = {
                     if (!done) {
                         console.log(`no image url: ${apiRequest}`);
 
+                        if (param.notify) {
+                            chrome.notifications.create({
+                                type: 'basic',
+                                title: chrome.i18n.getMessage('failed'),
+                                message: sites[potd].title,
+                                iconUrl: '../image/icon-128.png'
+                            }, () => { });
+                        }
+
+                        param.callback();
+                    }
+
+                } else {
+                    console.log(`api call failed : ${apiRequest}`);
+
+                    if (param.notify) {
                         chrome.notifications.create({
                             type: 'basic',
                             title: chrome.i18n.getMessage('failed'),
                             message: sites[potd].title,
                             iconUrl: '../image/icon-128.png'
                         }, () => { });
-
-                        if (callback) {
-                            callback();
-                        }
                     }
 
-                } else {
-                    console.log(`api call failed : ${apiRequest}`);
-
-                    chrome.notifications.create({
-                        type: 'basic',
-                        title: chrome.i18n.getMessage('failed'),
-                        message: sites[potd].title,
-                        iconUrl: '../image/icon-128.png'
-                    }, () => { });
-
-                    if (callback) {
-                        callback();
-                    }
+                    param.callback();
                 }
             }
         };
@@ -136,38 +146,42 @@ const sites = {
         xmlhttpRequest.send();
     },
 
-    setImage: (potd, apiRequest, imageUrl, callback) => {
-        console.log(`loading image from : ${imageUrl}`);
+    setImage: (param) => {
 
-        const now = new Date();
-        chrome.storage.local.set({ lastSetImage: now });
+        if (param.lastImageUrl === param.imageUrl) {
+            console.log(`imageUrl is same as previouse one : ${param.imageUrl}`);
+
+            return;
+        }
+
+        console.log(`loading image from : ${param.imageUrl}`);
 
         try {
             chrome.wallpaper.setWallpaper({
-                'url': imageUrl,
-                'filename': potd,
+                'url': param.imageUrl,
+                'filename': param.potd,
                 'layout': 'CENTER_CROPPED'
             }, () => {
+                chrome.storage.local.set({
+                    lastImageUrl: param.imageUrl
+                });
 
-                if (callback) {
-                    callback();
+                param.callback();
 
-                } else {
+                if (param.notify) {
                     chrome.notifications.create({
                         type: 'basic',
                         title: chrome.i18n.getMessage('updated'),
-                        message: sites[potd].title,
+                        message: sites[param.potd].title,
                         iconUrl: '../image/icon-128.png'
                     }, () => { });
                 }
             });
 
         } catch (ex) {
-            console.log(ex);
+            param.callback();
 
-            if (callback) {
-                callback();
-            }
+            console.log(ex);
         }
     }
 };
