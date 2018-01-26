@@ -5,6 +5,9 @@
   "description": {
     "message": "'今日の一枚'を壁紙に設定するシンプルな Chrome アプリです."
   },
+  "interval": {
+    "message": "_INTERVAL_ 分ごとに以下のサイトを確認します."
+  },
   "potd": {
     "message": "写真を取得するサイト:"
   },

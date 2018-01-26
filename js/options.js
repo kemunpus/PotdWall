@@ -12,7 +12,12 @@
         });
     }
 
-    chrome.storage.local.get('currentPotd', (settings) => {
+    chrome.storage.local.get(['currentPotd', 'interval'], (settings) => {
+
+        interval.innerHTML = interval.innerHTML.toString().replace(/_INTERVAL_/g, (match, value) => {
+            return settings.interval;
+        });
+
         const currentPotd = settings.currentPotd ? settings.currentPotd : sites.defaultPotd;
 
         for (let potd in sites) {
@@ -24,7 +29,7 @@
                     option.setAttribute('selected', 'selected');
 
                     const url = sites[potd].url;
-                    site.setAttribute("href", url);
+                    site.setAttribute('href', url);
                     site.innerHTML = url;
                 }
 
@@ -37,7 +42,7 @@
 
         potdList.onchange = () => {
             const url = sites[potdList.value].url;
-            site.setAttribute("href", url);
+            site.setAttribute('href', url);
             site.innerHTML = url;
         };
 
@@ -57,7 +62,7 @@
                 onSuccess: () => {
                     icon.src = '../image/icon-128.png';
                     save.disabled = false;
-                    message.innerHTML = chrome.i18n.getMessage('success');
+                    message.innerHTML = ''; // chrome.i18n.getMessage('success');
                 },
 
                 onFail: () => {
@@ -69,7 +74,6 @@
         };
 
         icon.src = '../image/icon-128.png';
-        save.disabled = false;
     });
 
 })();

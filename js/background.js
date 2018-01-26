@@ -7,11 +7,9 @@
 (() => {
 
     chrome.storage.local.get('interval', (settings) => {
-        const i = parseInt(settings.interval ? settings.interval : '60', 10);
+        const i = parseInt(settings.interval ? settings.interval : 60, 10);
 
-        console.log(`PotdWall alaram Interval is : ${i}`);
-
-        // chrome.storage.local.set({ interval: i });
+        chrome.storage.local.set({ interval: i });
 
         chrome.alarms.create('PotdWall', { periodInMinutes: i });
     });

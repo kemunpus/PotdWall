@@ -5,6 +5,9 @@
   "description": {
     "message": "Simple Chrome app that shows a 'Photo of the day' as the wallpaper."
   },
+  "interval": {
+    "message": "The Source Site will be checked in every _INTERVAL_ minutes."
+  },
   "potd": {
     "message": "Source Site:"
   },
