@@ -27,10 +27,7 @@
 
                 if (potd === currentPotd) {
                     option.setAttribute('selected', 'selected');
-
-                    const url = sites[potd].url;
-                    site.setAttribute('href', url);
-                    site.innerHTML = url;
+                    site.setAttribute('href', sites[potd].url);
                 }
 
                 option.setAttribute('value', potd);
@@ -41,9 +38,7 @@
         }
 
         potdList.onchange = () => {
-            const url = sites[potdList.value].url;
-            site.setAttribute('href', url);
-            site.innerHTML = url;
+            site.setAttribute('href', sites[potdList.value].url);
         };
 
         save.onclick = () => {

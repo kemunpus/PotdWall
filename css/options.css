@@ -20,6 +20,7 @@ hr {
     font-size: large;
     text-align: center;
     white-space: nowrap;
+    font-weight: bold;
 }
 
 .description {
@@ -45,7 +46,6 @@ hr {
 
 .site {
     color: #000000;
-    text-align: center;
     text-decoration: none;
 }
 
