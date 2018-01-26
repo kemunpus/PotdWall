@@ -49,7 +49,7 @@ const sites = {
     setWallpaper: (param) => {
         const potd = param.potd ? param.potd : 'wikimedia';
         const potdSite = sites[potd];
-        const now = Date();
+        const now = new Date();
 
         console.log(`Loading image from : ${potd} at : ${now}`);
 
