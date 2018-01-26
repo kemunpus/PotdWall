@@ -11,10 +11,10 @@
   "save": {
     "message": "　保存　"
   },
-  "updated": {
+  "success": {
     "message": "サイトから壁紙を更新しました"
   },
-  "failed": {
+  "fail": {
     "message": "サイトから写真が取得できないようです…"
   }
 }

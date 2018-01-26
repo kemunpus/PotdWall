@@ -53,10 +53,17 @@
             sites.setWallpaper({
                 potd: potdList.value,
                 lastImageUrl: '',
-                notify: false,
-                callback: () => {
+
+                onSuccess: () => {
                     icon.src = '../image/icon-128.png';
                     save.disabled = false;
+                    message.innerHTML = chrome.i18n.getMessage('success');
+                },
+
+                onFail: () => {
+                    icon.src = '../image/icon-128.png';
+                    save.disabled = false;
+                    message.innerHTML = chrome.i18n.getMessage('fail');
                 }
             });
         };
@@ -64,4 +71,5 @@
         icon.src = '../image/icon-128.png';
         save.disabled = false;
     });
+
 })();

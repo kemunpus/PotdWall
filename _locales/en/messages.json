@@ -11,10 +11,10 @@
   "save": {
     "message": " Save "
   },
-  "updated": {
+  "success": {
     "message": "Wallpaper has been updated"
   },
-  "failed": {
+  "fail": {
     "message": "The site seem to be down..."
   }
 }

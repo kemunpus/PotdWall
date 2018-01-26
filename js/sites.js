@@ -81,31 +81,24 @@ const sites = {
                                 imageUrl += value;
 
                                 if (!potdSite.secondKey) {
-                                    sites.setImage({
-                                        potd: potd,
-                                        apiRequest: apiRequest,
-                                        imageUrl: imageUrl,
-                                        lastImageUrl: param.lastImageUrl,
-                                        notify: param.notify,
-                                        callback: param.callback
-                                    });
-
                                     done = true;
                                 }
 
                             } else if (key === potdSite.secondKey) {
                                 imageUrl += value;
 
+                                done = true;
+                            }
+
+                            if (done) {
                                 sites.setImage({
                                     potd: potd,
                                     apiRequest: apiRequest,
                                     imageUrl: imageUrl,
                                     lastImageUrl: param.lastImageUrl,
-                                    notify: param.notify,
-                                    callback: param.callback
+                                    onSuccess: param.onSuccess,
+                                    onFail: param.onFail
                                 });
-
-                                done = true;
                             }
                         }
 
@@ -115,31 +108,13 @@ const sites = {
                     if (!done) {
                         console.log(`no image url: ${apiRequest}`);
 
-                        if (param.notify) {
-                            chrome.notifications.create({
-                                type: 'basic',
-                                title: chrome.i18n.getMessage('failed'),
-                                message: sites[potd].title,
-                                iconUrl: '../image/icon-128.png'
-                            }, () => { });
-                        }
-
-                        param.callback();
+                        param.onFail();
                     }
 
                 } else {
                     console.log(`api call failed : ${apiRequest}`);
 
-                    if (param.notify) {
-                        chrome.notifications.create({
-                            type: 'basic',
-                            title: chrome.i18n.getMessage('failed'),
-                            message: sites[potd].title,
-                            iconUrl: '../image/icon-128.png'
-                        }, () => { });
-                    }
-
-                    param.callback();
+                    param.onFail();
                 }
             }
         };
@@ -148,37 +123,30 @@ const sites = {
     },
 
     setImage: (param) => {
+
+        if (param.lastImageUrl === param.imageUrl) {
+            console.log(`imageUrl is same as last one : ${param.imageUrl}`);
+
+            return;
+        }
+
         try {
+            console.log(`calling chrome setWallpaper API with : ${param.imageUrl}`);
 
-            if (param.lastImageUrl === param.imageUrl) {
-                console.log(`imageUrl is same as last one : ${param.imageUrl}`);
+            chrome.wallpaper.setWallpaper({
+                'url': param.imageUrl,
+                'filename': param.potd,
+                'layout': 'CENTER_CROPPED'
+            }, () => {
+                chrome.storage.local.set({ lastImageUrl: param.imageUrl });
 
-            } else {
-                console.log(`calling chrome setWallpaper API with : ${param.imageUrl}`);
-
-                chrome.wallpaper.setWallpaper({
-                    'url': param.imageUrl,
-                    'filename': param.potd,
-                    'layout': 'CENTER_CROPPED'
-                }, () => {
-                    chrome.storage.local.set({ lastImageUrl: param.imageUrl });
-
-                    if (param.notify) {
-                        chrome.notifications.create({
-                            type: 'basic',
-                            title: chrome.i18n.getMessage('updated'),
-                            message: sites[param.potd].title,
-                            iconUrl: '../image/icon-128.png'
-                        }, () => { });
-                    }
-                });
-            }
+                param.onSuccess();
+            });
 
         } catch (ex) {
             console.log(ex);
 
-        } finally {
-            param.callback();
+            param.onFail();
         }
     }
 };

@@ -5,6 +5,7 @@
 'use strict';
 
 (() => {
+
     chrome.storage.local.get('interval', (settings) => {
         const i = parseInt(settings.interval ? settings.interval : '60', 10);
 
@@ -25,4 +26,5 @@
     chrome.app.runtime.onLaunched.addListener(() => {
         chrome.app.window.create('html/options.html');
     });
+
 })();

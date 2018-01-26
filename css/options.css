@@ -46,6 +46,12 @@ hr {
 .site {
     color: #000000;
     text-align: center;
+    text-decoration: none;
+}
+
+.message {
+    text-align: center;
+    color: #ff0000;
 }
 
 .buttons {
