@@ -10,9 +10,9 @@
 
         console.log(`PotdWall alaram Interval is : ${i}`);
 
-        chrome.storage.local.set({ interval: i });
+        // chrome.storage.local.set({ interval: i });
 
-        chrome.alarms.create('checkUpdate', { periodInMinutes: i });
+        chrome.alarms.create('PotdWall', { periodInMinutes: i });
     });
 
     chrome.alarms.onAlarm.addListener((alarm) => {

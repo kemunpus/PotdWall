@@ -5,6 +5,7 @@
 'use strict';
 
 const sites = {
+    defaultPotd: 'wikimedia',
 
     wikimedia: {
         title: "Wikimedia Commons 'Picture of the day'",
@@ -47,7 +48,7 @@ const sites = {
     },
 
     setWallpaper: (param) => {
-        const potd = param.potd ? param.potd : 'wikimedia';
+        const potd = param.potd ? param.potd : sites.defaultPotd;
         const potdSite = sites[potd];
         const now = new Date();
 
@@ -147,41 +148,37 @@ const sites = {
     },
 
     setImage: (param) => {
-
-        if (param.lastImageUrl === param.imageUrl) {
-            console.log(`imageUrl is same as previouse one : ${param.imageUrl}`);
-
-            return;
-        }
-
-        console.log(`loading image from : ${param.imageUrl}`);
-
         try {
-            chrome.wallpaper.setWallpaper({
-                'url': param.imageUrl,
-                'filename': param.potd,
-                'layout': 'CENTER_CROPPED'
-            }, () => {
-                chrome.storage.local.set({
-                    lastImageUrl: param.imageUrl
+
+            if (param.lastImageUrl === param.imageUrl) {
+                console.log(`imageUrl is same as last one : ${param.imageUrl}`);
+
+            } else {
+                console.log(`calling chrome setWallpaper API with : ${param.imageUrl}`);
+
+                chrome.wallpaper.setWallpaper({
+                    'url': param.imageUrl,
+                    'filename': param.potd,
+                    'layout': 'CENTER_CROPPED'
+                }, () => {
+                    chrome.storage.local.set({ lastImageUrl: param.imageUrl });
+
+                    if (param.notify) {
+                        chrome.notifications.create({
+                            type: 'basic',
+                            title: chrome.i18n.getMessage('updated'),
+                            message: sites[param.potd].title,
+                            iconUrl: '../image/icon-128.png'
+                        }, () => { });
+                    }
                 });
-
-                param.callback();
-
-                if (param.notify) {
-                    chrome.notifications.create({
-                        type: 'basic',
-                        title: chrome.i18n.getMessage('updated'),
-                        message: sites[param.potd].title,
-                        iconUrl: '../image/icon-128.png'
-                    }, () => { });
-                }
-            });
+            }
 
         } catch (ex) {
-            param.callback();
-
             console.log(ex);
+
+        } finally {
+            param.callback();
         }
     }
 };

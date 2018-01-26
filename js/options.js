@@ -13,7 +13,7 @@
     }
 
     chrome.storage.local.get('currentPotd', (settings) => {
-        const currentPotd = settings.currentPotd ? settings.currentPotd : 'wikimedia';
+        const currentPotd = settings.currentPotd ? settings.currentPotd : sites.defaultPotd;
 
         for (let potd in sites) {
 
@@ -60,5 +60,8 @@
                 }
             });
         };
+
+        icon.src = '../image/icon-128.png';
+        save.disabled = false;
     });
 })();
