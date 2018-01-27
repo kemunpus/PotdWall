@@ -122,7 +122,7 @@ const sites = {
 
             try {
                 chrome.wallpaper.setWallpaper({ 'url': param.imageUrl, 'filename': param.potd, 'layout': 'CENTER_CROPPED' }, () => {
-                    chrome.storage.local.set({ lastImageUrl: param.imageUrl, update: new Date().toString() });
+                    chrome.storage.local.set({ lastImageUrl: param.imageUrl, log_update: new Date().toString() });
 
                     param.onSuccess();
                 });

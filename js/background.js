@@ -18,13 +18,13 @@
     chrome.alarms.onAlarm.addListener((alarm) => {
         const now = new Date().toString();
 
-        chrome.storage.local.set({ alarm: now });
+        chrome.storage.local.set({ log_tick: now });
 
         if (window.navigator.onLine) {
             chrome.storage.local.get('next', (settings) => {
 
                 if (settings.next && (Date.now() > parseInt(settings.next, 10))) {
-                    chrome.storage.local.set({ check: now });
+                    chrome.storage.local.set({ log_interval: now });
 
                     chrome.app.window.create('html/interval.html', { hidden: true });
                 }
