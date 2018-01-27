@@ -133,12 +133,8 @@ const sites = {
         try {
             console.log(`calling chrome setWallpaper API with : ${param.imageUrl}`);
 
-            chrome.wallpaper.setWallpaper({
-                'url': param.imageUrl,
-                'filename': param.potd,
-                'layout': 'CENTER_CROPPED'
-            }, () => {
-                chrome.storage.local.set({ lastImageUrl: param.imageUrl });
+            chrome.wallpaper.setWallpaper({ 'url': param.imageUrl, 'filename': param.potd, 'layout': 'CENTER_CROPPED' }, () => {
+                chrome.storage.local.set({ lastImageUrl: param.imageUrl, update: new Date().toLocaleString() });
 
                 param.onSuccess();
             });

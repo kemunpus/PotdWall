@@ -45,10 +45,7 @@
             icon.src = '../image/loader-100x100.gif';
             save.disabled = true;
 
-            chrome.storage.local.set({
-                currentPotd: potdList.value,
-                lastImageUrl: ''
-            });
+            chrome.storage.local.set({ currentPotd: potdList.value, lastImageUrl: '' });
 
             sites.setWallpaper({
                 potd: potdList.value,
