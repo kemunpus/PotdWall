@@ -1,6 +1,8 @@
 ﻿# 'Photo of the day' Wall (PotdWall)
 
-![top-page](https://raw.githubusercontent.com/kemunpus/PotdWall/master/store/promotion-440x280.png)
+![top-page](https://raw.githubusercontent.com/kemunpus/PotdWall/master/release/promotion-440x280.png)
+
+[Chrome Web Store](https://chrome.google.com/webstore/detail/photo-of-the-day-wall/kobkekglgjanedfecimfkgnhklgglkfb)
 
 ## Overview
 
@@ -17,7 +19,3 @@ No ads, harmful behavior, and unnecessary network accesses. Very small and clean
 現時点では Wikimedia Commons 'Picture of the day'、 "NASA 'Astronomy Picture of the day'、National Geographic 'Photo of the day'、Bing 'Photo of the day' をサポートしています。
 
 広告や有害な処理、不要なネットワークへのアクセスなどはありません。すべてのソースコードをオープンソースとして公開していますので、詳しくは <https://github.com/kemunpus/PotdWall> をご覧ください。
-
-## Chrome Web Store
-
-<https://chrome.google.com/webstore/detail/photo-of-the-day-wall/kobkekglgjanedfecimfkgnhklgglkfb>
