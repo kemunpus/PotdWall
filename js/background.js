@@ -6,19 +6,29 @@
 
 (() => {
 
-    chrome.storage.local.get('interval', (settings) => {
-        const i = parseInt(settings.interval ? settings.interval : 60, 10);
+    chrome.storage.local.get(['interval', 'tick', 'next'], (settings) => {
+        const interval = parseInt(settings.interval ? settings.interval : 60, 10);
+        const tick = parseInt(settings.tick ? settings.tick : 5, 10);
 
-        chrome.storage.local.set({ interval: i, start: new Date().toLocaleString() });
+        chrome.storage.local.set({ interval: interval, tick: tick });
 
-        chrome.alarms.create('PotdWall', { periodInMinutes: i });
+        chrome.alarms.create('PotdWall', { periodInMinutes: tick });
     });
 
     chrome.alarms.onAlarm.addListener((alarm) => {
-        chrome.storage.local.set({ alarm: new Date().toLocaleString() });
+        const now = new Date().toString();
+
+        chrome.storage.local.set({ alarm: now });
 
         if (window.navigator.onLine) {
-            chrome.app.window.create('html/interval.html', { hidden: true });
+            chrome.storage.local.get('next', (settings) => {
+
+                if (settings.next && (Date.now() > parseInt(settings.next, 10))) {
+                    chrome.storage.local.set({ check: now });
+
+                    chrome.app.window.create('html/interval.html', { hidden: true });
+                }
+            });
         }
     });
 

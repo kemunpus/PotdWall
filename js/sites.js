@@ -52,15 +52,11 @@ const sites = {
         const potdSite = sites[potd];
         const now = new Date();
 
-        console.log(`Loading image from : ${potd} at : ${now}`);
-
         const today = now.getUTCFullYear() + '-' + ('00' + (now.getUTCMonth() + 1)).slice(-2) + '-' + ('00' + now.getUTCDate()).slice(-2);
         const apiRequest = potdSite.apiUrl + today + potdSite.apiSuffix;
 
         let done = false;
         let imageUrl = potdSite.baseUrl;
-
-        console.log(`calling api : ${apiRequest}`);
 
         const xmlhttpRequest = new XMLHttpRequest();
 
@@ -71,7 +67,6 @@ const sites = {
             if (xmlhttpRequest.readyState === 4) {
 
                 if (xmlhttpRequest.status === 200) {
-                    console.log(`parsing api response as json : ${xmlhttpRequest.response}`);
 
                     JSON.parse(xmlhttpRequest.response, (key, value) => {
 
@@ -95,7 +90,6 @@ const sites = {
                                     potd: potd,
                                     apiRequest: apiRequest,
                                     imageUrl: imageUrl,
-                                    lastImageUrl: param.lastImageUrl,
                                     onSuccess: param.onSuccess,
                                     onFail: param.onFail
                                 });
@@ -106,14 +100,10 @@ const sites = {
                     });
 
                     if (!done) {
-                        console.log(`no image url: ${apiRequest}`);
-
                         param.onFail();
                     }
 
                 } else {
-                    console.log(`api call failed : ${apiRequest}`);
-
                     param.onFail();
                 }
             }
@@ -123,26 +113,25 @@ const sites = {
     },
 
     setImage: (param) => {
+        chrome.storage.local.get(['lastImageUrl', 'interval'], (settings) => {
+            chrome.storage.local.set({ next: Date.now() + (settings.interval * 60000) });
 
-        if (param.lastImageUrl === param.imageUrl) {
-            console.log(`imageUrl is same as last one : ${param.imageUrl}`);
+            if (settings.lastImageUrl === param.imageUrl) {
+                return;
+            }
 
-            return;
-        }
+            try {
+                chrome.wallpaper.setWallpaper({ 'url': param.imageUrl, 'filename': param.potd, 'layout': 'CENTER_CROPPED' }, () => {
+                    chrome.storage.local.set({ lastImageUrl: param.imageUrl, update: new Date().toString() });
 
-        try {
-            console.log(`calling chrome setWallpaper API with : ${param.imageUrl}`);
+                    param.onSuccess();
+                });
 
-            chrome.wallpaper.setWallpaper({ 'url': param.imageUrl, 'filename': param.potd, 'layout': 'CENTER_CROPPED' }, () => {
-                chrome.storage.local.set({ lastImageUrl: param.imageUrl, update: new Date().toLocaleString() });
+            } catch (e) {
+                console.log(e);
 
-                param.onSuccess();
-            });
-
-        } catch (ex) {
-            console.log(ex);
-
-            param.onFail();
-        }
+                param.onFail();
+            }
+        });
     }
 };
