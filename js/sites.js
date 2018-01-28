@@ -52,6 +52,8 @@ const sites = {
         const potdSite = sites[potd];
         const now = new Date();
 
+        chrome.storage.local.set({ log_check: now.toString() });
+
         const today = now.getUTCFullYear() + '-' + ('00' + (now.getUTCMonth() + 1)).slice(-2) + '-' + ('00' + now.getUTCDate()).slice(-2);
         const apiRequest = potdSite.apiUrl + today + potdSite.apiSuffix;
 
@@ -61,6 +63,8 @@ const sites = {
         const xmlhttpRequest = new XMLHttpRequest();
 
         xmlhttpRequest.open('GET', apiRequest, true);
+        xmlhttpRequest.setRequestHeader('Pragma', 'no-cache');
+        xmlhttpRequest.setRequestHeader('Cache-Control', 'no-cache');
 
         xmlhttpRequest.onreadystatechange = () => {
 
@@ -114,21 +118,29 @@ const sites = {
 
     setImage: (param) => {
         chrome.storage.local.get(['lastImageUrl', 'interval'], (settings) => {
-            chrome.storage.local.set({ next: Date.now() + (settings.interval * 60000) });
+            const next = Date.now() + (settings.interval * 60000);
+
+            chrome.storage.local.set({ next: next });
+            chrome.storage.local.set({ log_next: new Date(next).toString() });
 
             if (settings.lastImageUrl === param.imageUrl) {
+                chrome.storage.local.set({ log_result: 'skip' });
+
                 return;
             }
 
             try {
                 chrome.wallpaper.setWallpaper({ 'url': param.imageUrl, 'filename': param.potd, 'layout': 'CENTER_CROPPED' }, () => {
                     chrome.storage.local.set({ lastImageUrl: param.imageUrl, log_update: new Date().toString() });
+                    chrome.storage.local.set({ log_result: 'success' });
 
                     param.onSuccess();
                 });
 
             } catch (e) {
                 console.log(e);
+
+                chrome.storage.local.set({ log_result: 'fail' });
 
                 param.onFail();
             }
