@@ -18,15 +18,35 @@
     chrome.alarms.onAlarm.addListener((alarm) => {
         const now = new Date().toString();
 
-        chrome.storage.local.set({ log_tick: now });
-
         if (window.navigator.onLine) {
             chrome.storage.local.get('next', (settings) => {
 
                 if (settings.next && (Date.now() > parseInt(settings.next, 10))) {
-                    chrome.storage.local.set({ log_interval: now });
+                    chrome.storage.local.get(['currentPotd', 'lastImageUrl'], (settings) => {
 
-                    chrome.app.window.create('html/interval.html', { hidden: true });
+                        sites.setWallpaper({
+                            potd: settings.currentPotd,
+                            lastImageUrl: settings.lastImageUrl,
+
+                            onSuccess: () => {
+                                chrome.notifications.create({
+                                    type: 'basic',
+                                    title: chrome.i18n.getMessage('success'),
+                                    message: sites[settings.currentPotd].title,
+                                    iconUrl: '../image/icon-128.png'
+                                }, () => { });
+                            },
+
+                            onFail: () => {
+                                chrome.notifications.create({
+                                    type: 'basic',
+                                    title: chrome.i18n.getMessage('fail'),
+                                    message: sites[settings.currentPotd].title,
+                                    iconUrl: '../image/icon-128.png'
+                                }, () => { });
+                            }
+                        });
+                    });
                 }
             });
         }
