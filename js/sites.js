@@ -5,62 +5,66 @@
 'use strict';
 
 const sites = {
-    defaultPotd: 'wikimedia',
+    defaultPotd: 'bing',
 
     wikimedia: {
         title: "Wikimedia Commons 'Picture of the day'",
         url: 'https://commons.wikimedia.org/wiki/Main_Page',
         apiUrl: 'https://commons.wikimedia.org/w/api.php?action=query&format=json&prop=imageinfo&generator=images&formatversion=2&iiprop=url&titles=Template%3APotd%2F',
-        apiSuffix: '',
+        apiUrlSuffix: '',
         firstKey: 'url',
         secondKey: '',
-        baseUrl: ''
+        baseImageUrl: ''
     },
 
     nasa: {
         title: "NASA 'Astronomy Picture of the day'",
         url: 'https://apod.nasa.gov/',
         apiUrl: 'https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY&date=',
-        apiSuffix: '',
+        apiUrlSuffix: '',
         firstKey: 'url',
         secondKey: '',
-        baseUrl: ''
+        baseImageUrl: ''
     },
 
     nationalgeographic: {
         title: "National Geographic 'Photo of the day'",
         url: 'https://www.nationalgeographic.com/photography/photo-of-the-day/',
         apiUrl: 'https://www.nationalgeographic.com/photography/photo-of-the-day/_jcr_content/.gallery.',
-        apiSuffix: '.json',
+        apiUrlSuffix: '.json',
         firstKey: 'url',
         secondKey: 'originalUrl',
-        baseUrl: ''
+        baseImageUrl: ''
     },
 
     bing: {
         title: "Bing 'Photo of the day'",
         url: 'https://www.bing.com/',
         apiUrl: 'https://www.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1&DUMMY=',
-        apiSuffix: '',
+        apiUrlSuffix: '',
         firstKey: 'url',
         secondKey: '',
-        baseUrl: 'http://www.bing.com/'
+        baseImageUrl: 'http://www.bing.com/'
     },
 
-    setWallpaper: (param) => {
-        const potd = param.potd ? param.potd : sites.defaultPotd;
-        const potdSite = sites[potd];
+    setWallpaper: (args) => {
+        const potd = sites[args.currentPotd ? args.currentPotd : sites.defaultPotd];
+        console.log(`source site: ${potd.title}`);
+
         const now = new Date();
-
         const today = now.getUTCFullYear() + '-' + ('00' + (now.getUTCMonth() + 1)).slice(-2) + '-' + ('00' + now.getUTCDate()).slice(-2);
-        const apiRequest = potdSite.apiUrl + today + potdSite.apiSuffix;
 
+        const apiRequestUrl = potd.apiUrl + today + potd.apiUrlSuffix;
+        console.log(`calling api : ${apiRequestUrl}`);
+
+        args.onStart(apiRequestUrl, potd);
+
+        let imageUrl = potd.baseImageUrl;
         let done = false;
-        let imageUrl = potdSite.baseUrl;
 
         const xmlhttpRequest = new XMLHttpRequest();
 
-        xmlhttpRequest.open('GET', apiRequest, true);
+        xmlhttpRequest.open('GET', apiRequestUrl, true);
         xmlhttpRequest.setRequestHeader('Pragma', 'no-cache');
         xmlhttpRequest.setRequestHeader('Cache-Control', 'no-cache');
 
@@ -69,30 +73,28 @@ const sites = {
             if (xmlhttpRequest.readyState === 4) {
 
                 if (xmlhttpRequest.status === 200) {
+                    console.log(`parsing api response : ${xmlhttpRequest.response}`);
+
                     JSON.parse(xmlhttpRequest.response, (key, value) => {
 
                         if (!done && value) {
 
-                            if (key === potdSite.firstKey) {
+                            if (key === potd.firstKey) {
                                 imageUrl += value;
 
-                                if (!potdSite.secondKey) {
+                                if (!potd.secondKey) {
                                     done = true;
                                 }
 
-                            } else if (key === potdSite.secondKey) {
+                            } else if (key === potd.secondKey) {
                                 imageUrl += value;
 
                                 done = true;
                             }
 
                             if (done) {
-                                sites.setImage({
-                                    potd: potd,
-                                    imageUrl: imageUrl,
-                                    onSuccess: param.onSuccess,
-                                    onFail: param.onFail
-                                });
+                                console.log(`apply image from url : ${imageUrl}`);
+                                args.onApply(imageUrl, potd);
                             }
                         }
 
@@ -100,36 +102,17 @@ const sites = {
                     });
 
                     if (!done) {
-                        param.onFail();
+                        console.log(`no image url found: ${apiRequestUrl}`);
+                        args.onFail(apiRequestUrl, potd);
                     }
 
                 } else {
-                    param.onFail();
+                    console.log(`api call failed : ${apiRequestUrl}`);
+                    args.onFail(apiRequestUrl, potd);
                 }
             }
         };
 
         xmlhttpRequest.send();
-    },
-
-    setImage: (param) => {
-        chrome.storage.local.get(['lastImageUrl', 'interval'], (settings) => {
-            const next = Date.now() + (settings.interval * 60000);
-            chrome.storage.local.set({ next: next });
-            chrome.storage.local.set({ log_next: new Date(next).toString() });
-
-            if (settings.lastImageUrl !== param.imageUrl) {
-
-                try {
-                    chrome.wallpaper.setWallpaper({ 'url': param.imageUrl, 'filename': param.potd, 'layout': 'CENTER_CROPPED' }, () => {
-                        chrome.storage.local.set({ lastImageUrl: param.imageUrl });
-                        param.onSuccess();
-                    });
-
-                } catch (e) {
-                    param.onFail();
-                }
-            }
-        });
     }
 };
