@@ -14,13 +14,13 @@
     };
 
     chrome.storage.local.get(['interval', 'tick'], (settings) => {
-        const interval = parseInt(settings.interval ? settings.interval : defaultInterval, 10);
-        const tick = parseInt(settings.tick ? settings.tick : defaultTick, 10);
+        const i = Math.max(parseInt(settings.interval ? settings.interval : defaultInterval, 10), defaultInterval);
+        const t = Math.max(parseInt(settings.tick ? settings.tick : defaultTick, 10), defaultTick);
 
-        chrome.storage.local.set({ interval: interval, tick: tick });
+        chrome.storage.local.set({ interval: i, tick: t });
 
-        chrome.alarms.create('PotdWall', { periodInMinutes: tick });
-        console.log(`alaram created with interval : ${interval} tick : ${tick}`);
+        chrome.alarms.create('PotdWall', { periodInMinutes: t });
+        console.log(`alaram interval : ${i} tick : ${t}`);
     });
 
     chrome.alarms.onAlarm.addListener((alarm) => {

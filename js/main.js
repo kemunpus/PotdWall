@@ -59,7 +59,6 @@
 
                         if (thumbnail) {
                             chrome.storage.local.set({ currentPotd: potdList.value, lastImageUrl: imageUrl, next: Date.now() + (settings.interval * 60000) });
-                            message.innerHTML = chrome.i18n.getMessage('success');
 
                         } else {
                             message.innerHTML = chrome.i18n.getMessage('fail');
