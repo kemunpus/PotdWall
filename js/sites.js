@@ -16,21 +16,12 @@ const sites = {
         }
     },
 
-    nasa: {
-        title: "NASA 'Astronomy Picture of the day'",
-        url: 'https://apod.nasa.gov/',
-        apiUrl: 'https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY&date=TODAY',
-        getImageUrl: (json) => {
-            return json.url;
-        }
-    },
-
     nationalgeographic: {
         title: "National Geographic 'Photo of the day'",
         url: 'https://www.nationalgeographic.com/photography/photo-of-the-day/',
         apiUrl: 'https://www.nationalgeographic.com/photography/photo-of-the-day/_jcr_content/.gallery.TODAY.json',
         getImageUrl: (json) => {
-            return json.items[0].url + json.items[0].originalUrl;
+            return json.items[0].originalUrl;
         }
     },
 
